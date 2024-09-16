@@ -5,8 +5,8 @@ import {
 } from '../controllers/controllerContacts.js';
 
 const router = Router();
-router.get('/', getContactsController);
+router.get('/contacts', getContactsController);
 
-router.get('/:contactId', getContactByIdController);
+router.get('/contacts/:contactId', getContactByIdController);
 
 export default router;
