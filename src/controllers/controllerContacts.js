@@ -38,6 +38,7 @@ export const postContactsController = async (req, res, next) => {
   try {
     const { name, phoneNumber, email, isFavourite, contactType } = req.body;
 
+    // Перевірка обов'язкових полів
     if (!name || !phoneNumber || !contactType) {
       throw createHttpError(
         400,
@@ -45,17 +46,19 @@ export const postContactsController = async (req, res, next) => {
       );
     }
 
+    // Виклик сервісу для створення контакту
     const contact = await postContacts({
       name,
       phoneNumber,
       email,
-      isFavourite,
+      isFavourite: isFavourite || false, // За замовчуванням false, якщо не передано
       contactType,
     });
 
+    // Відповідь з кодом 201 та даними створеного контакту
     res.status(201).json({
       status: 201,
-      message: `Successfully created a contact!`,
+      message: 'Successfully created a contact!',
       data: contact,
     });
   } catch (err) {
