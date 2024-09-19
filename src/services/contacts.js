@@ -1,5 +1,5 @@
 import { ContactsCollection } from '../db/models/contacts.js';
-/* import { ObjectId } from 'mongodb'; */
+import createHttpError from 'http-errors';
 
 export const getAllContacts = async () => {
   const contacts = await ContactsCollection.find();
@@ -8,6 +8,14 @@ export const getAllContacts = async () => {
 
 export const getContactById = async (contactId) => {
   const contact = await ContactsCollection.findById(contactId);
+
+  if (!contact) {
+    throw createHttpError(404, {
+      status: 404,
+      message: `Contact with id ${contactId} not found!`,
+    });
+  }
+
   return contact;
 };
 
