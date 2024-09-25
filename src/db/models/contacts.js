@@ -1,17 +1,31 @@
 import { model, Schema } from 'mongoose';
+import { typeList } from '../../constants/contact-constants.js';
+import { mongooseSaveError, setUpdateSettings } from './hooks.js';
 
 const contactSchema = new Schema(
   {
     name: {
       type: String,
+      min: [3, 'Must be at least 3, got {VALUE}'],
+      max: 20,
       required: true,
     },
     phoneNumber: {
       type: String,
-      required: true,
+      validate: {
+        validator: function (v) {
+          return /\d{3}-\d{3}-\d{4}/.test(v);
+        },
+        message: (props) => `${props.value} is not a valid phone number!`,
+      },
+      required: [true, 'User phone number required'],
     },
     email: {
       type: String,
+      validate: {
+        validator: () => Promise.resolve(false),
+        message: 'Email validation failed',
+      },
     },
     isFavourite: {
       type: Boolean,
@@ -19,7 +33,7 @@ const contactSchema = new Schema(
     },
     contactType: {
       type: String,
-      enum: ['work', 'home', 'personal'],
+      enum: typeList,
       required: true,
       default: 'personal',
     },
@@ -29,5 +43,11 @@ const contactSchema = new Schema(
     versionKey: false,
   },
 );
+
+contactSchema.post('save', mongooseSaveError);
+
+contactSchema.pre('findOneAndUpdate', setUpdateSettings);
+
+contactSchema.post('findOneAndUpdate', mongooseSaveError);
 
 export const ContactsCollection = model('contacts', contactSchema);

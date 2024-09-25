@@ -1,5 +1,5 @@
 {
-  "name": "hw3-crud",
+  "name": "hw4-validation",
   "version": "1.0.0",
   "description": "node-js",
   "type": "module",
@@ -25,6 +25,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "http-errors": "^2.0.0",
+    "joi": "^17.13.3",
     "mongodb": "^6.9.0",
     "mongoose": "^8.6.2",
     "pino-http": "^10.3.0"
