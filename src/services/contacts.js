@@ -62,7 +62,7 @@ export const updateContact = async (filter, payload, options = {}) => {
 
   if (!result || !result.value) {
     console.warn('No contact found or update failed:', filter);
-    return null; // Не знайшли контакт або оновлення не пройшло
+    return null; // Не знайшовся контакт або оновлення не пройшло
   }
 
   const isNew = result.lastErrorObject?.updatedExisting === false; // Перевірка на новий запис
