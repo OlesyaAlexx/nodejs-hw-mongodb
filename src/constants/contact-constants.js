@@ -7,6 +7,4 @@ export const contactFieldList = [
   'email',
   'isFavourite',
   'contactType',
-  /*  'createdAt',
-  'updatedAt', */
 ];
