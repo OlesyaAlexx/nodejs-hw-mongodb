@@ -14,7 +14,7 @@ const contactSchema = new Schema(
       type: String,
       validate: {
         validator: function (v) {
-          return /\d{3}-\d{3}-\d{4}/.test(v);
+          return /^\+380\d{9}$/.test(v);
         },
         message: (props) => `${props.value} is not a valid phone number!`,
       },
@@ -23,9 +23,12 @@ const contactSchema = new Schema(
     email: {
       type: String,
       validate: {
-        validator: () => Promise.resolve(false),
-        message: 'Email validation failed',
+        validator: function (v) {
+          return /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v);
+        },
+        message: (props) => `${props.value} is not a valid email!`, // Повідомлення про помилку
       },
+      required: [false, 'User email is optional'], // Email не є обов'язковим
     },
     isFavourite: {
       type: Boolean,
