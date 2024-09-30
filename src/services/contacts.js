@@ -1,5 +1,5 @@
 import { ContactsCollection } from '../db/models/contacts.js';
-import calcPagnationData from '../utils/calcPaginationData.js';
+import calcPaginationData from '../utils/calcPaginationData.js';
 import { contactFieldList } from '../constants/contact-constants.js';
 import { sortOrderList } from '../constants/index.js';
 
@@ -12,22 +12,28 @@ export const getAllContacts = async ({
 }) => {
   const skip = (page - 1) * perPage;
 
+  console.log('Filters:', filter); // Логування фільтрів
+
   const databaseQuery = ContactsCollection.find();
   if (filter.contactType) {
     databaseQuery.where('contactType').equals(filter.contactType);
   }
-  if (filter.isFavourite) {
+  if (filter.isFavourite !== undefined) {
     databaseQuery.where('isFavourite').equals(filter.isFavourite);
   }
+
   const items = await databaseQuery
     .skip(skip)
     .limit(perPage)
     .sort({ [sortBy]: sortOrder });
-  const totalItems = await ContactsCollection.find()
-    .merge(databaseQuery)
-    .countDocuments();
-  const { totalPages, hasNextPage, hasPrevPage } = calcPagnationData({
-    total: totalItems,
+
+  // Запит для підрахунку загальної кількості контактів
+  const totalItems = await ContactsCollection.countDocuments(
+    databaseQuery.getQuery(),
+  );
+
+  const { totalPages, hasNextPage, hasPrevPage } = calcPaginationData({
+    totalItems,
     perPage,
     page,
   });
@@ -60,9 +66,9 @@ export const updateContact = async (filter, payload, options = {}) => {
     ...options,
   });
 
-  if (!result || !result.value) {
+  if (!result) {
     console.warn('No contact found or update failed:', filter);
-    return null; // Не знайшовся контакт або оновлення не пройшло
+    return null;
   }
 
   const isNew = result.lastErrorObject?.updatedExisting === false; // Перевірка на новий запис
