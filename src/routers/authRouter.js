@@ -10,18 +10,24 @@ import {
 import {
   signupController,
   signinController,
+  refreshController,
+  signoutController,
 } from '../controllers/controllerAuth.js';
 
 const authRouter = Router();
 authRouter.post(
-  ' / singup',
+  '/signup',
   validateBody(userSignupSchema),
   ctrlWrapper(signupController),
 );
 authRouter.post(
-  '/singin',
+  '/signin',
   validateBody(userSigninSchema),
   ctrlWrapper(signinController),
 );
+
+authRouter.post('/refresh', ctrlWrapper(refreshController));
+
+authRouter.post('/signout', ctrlWrapper(signoutController));
 
 export default authRouter;

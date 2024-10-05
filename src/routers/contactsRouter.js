@@ -14,8 +14,11 @@ import {
   contactAddSchema,
   contactUpdateSchema,
 } from '../validation/contact-schemas.js';
+import authenticate from '../middlewares/authenticate.js';
 
 const router = Router();
+router.use(authenticate);
+
 router.get('/contacts', ctrlWrapper(getContactsController));
 
 router.get(
