@@ -2,6 +2,7 @@ import { model, Schema } from 'mongoose';
 import { typeList } from '../../constants/contact-constants.js';
 import { mongooseSaveError, setUpdateSettings } from './hooks.js';
 
+//Створення схеми
 const contactSchema = new Schema(
   {
     name: {
