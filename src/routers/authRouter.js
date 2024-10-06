@@ -8,26 +8,26 @@ import {
   userSigninSchema,
 } from '../validation/user-schemas.js';
 import {
-  signupController,
-  signinController,
+  registerController,
+  loginController,
   refreshController,
-  signoutController,
+  logoutController,
 } from '../controllers/controllerAuth.js';
 
 const authRouter = Router();
 authRouter.post(
-  '/signup',
+  '/register',
   validateBody(userSignupSchema),
-  ctrlWrapper(signupController),
+  ctrlWrapper(registerController),
 );
 authRouter.post(
-  '/signin',
+  '/login',
   validateBody(userSigninSchema),
-  ctrlWrapper(signinController),
+  ctrlWrapper(loginController),
 );
 
 authRouter.post('/refresh', ctrlWrapper(refreshController));
 
-authRouter.post('/signout', ctrlWrapper(signoutController));
+authRouter.post('/logout', ctrlWrapper(logoutController));
 
 export default authRouter;

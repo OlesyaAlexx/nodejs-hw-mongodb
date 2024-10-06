@@ -23,11 +23,10 @@ const setupResponseSession = (
   });
 };
 
-export const signupController = async (req, res) => {
+export const registerController = async (req, res) => {
   const { email } = req.body;
   const user = await findUser({ email });
   if (user) {
-    // throw createHttpError(401, "Email or password invalid");
     throw createHttpError(409, 'Email already in use');
   }
 
@@ -45,7 +44,7 @@ export const signupController = async (req, res) => {
   });
 };
 
-export const signinController = async (req, res) => {
+export const loginController = async (req, res) => {
   const { email, password } = req.body;
   const user = await findUser({ email });
   if (!user) {
@@ -97,7 +96,7 @@ export const refreshController = async (req, res) => {
   });
 };
 
-export const signoutController = async (req, res) => {
+export const logoutController = async (req, res) => {
   const { sessionId } = req.cookies;
   if (!sessionId) {
     throw createHttpError(401, 'Session not found');

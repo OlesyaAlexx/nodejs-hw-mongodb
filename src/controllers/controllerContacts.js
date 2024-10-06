@@ -18,12 +18,15 @@ export const getContactsController = async (req, res, next) => {
     const { sortBy, sortOrder } = parseSortParams(query, contactFieldList);
     const filter = parseContactFilterParams(query);
 
+    // Додаємо userId до фільтра
+    const userFilter = { ...filter, userId: req.user._id };
+
     const data = await getAllContacts({
       page,
       perPage,
       sortBy,
       sortOrder,
-      filter,
+      filter: userFilter, // Використовуємо новий фільтр з userId
     });
     res.json({
       status: 200,
@@ -61,15 +64,16 @@ export const postContactsController = async (req, res, next) => {
         'Missing required fields: name, phoneNumber, and contactType are required',
       );
     }
-
-    // Виклик сервісу для створення контакту
-    const data = await postContacts({
+    const newContact = {
       name,
       phoneNumber,
       email,
       isFavourite: isFavourite || false,
       contactType,
-    });
+      userId: req.user._id, // Додаємо userId з авторизованого користувача
+    };
+    // Виклик сервісу для створення контакту
+    const data = await postContacts(newContact);
 
     // Відповідь з кодом 201 та даними створеного контакту
     res.status(201).json({
@@ -85,12 +89,22 @@ export const postContactsController = async (req, res, next) => {
 export const patchContactController = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const data = await getContactById(contactId);
+    const contact = await getContactById(contactId);
 
-    if (!data) {
+    //Перевірка чи контакт існує
+    if (!contact) {
       return res.status(404).json({ message: 'Contact not found' });
     }
 
+    // Перевірка, чи належить контакт авторизованому користувачу
+    if (contact.userId.toString() !== req.user._id.toString()) {
+      throw createHttpError(
+        403,
+        'You do not have permission to update this contact',
+      );
+    }
+
+    // Оновлюєм контакт
     const updatedContact = await updateContact({ _id: contactId }, req.body);
 
     res.json({
@@ -103,15 +117,33 @@ export const patchContactController = async (req, res, next) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 export const deleteContactController = async (req, res, next) => {
-  const { contactId } = req.params;
-  const result = await getContactById(contactId);
+  try {
+    const { contactId } = req.params;
 
-  if (!result) {
-    throw createHttpError(404, 'Contact not found');
+    // Знаходимо контакт по ID
+    const contact = await getContactById(contactId);
+
+    // Перевірка, чи існує контакт
+    if (!contact) {
+      throw createHttpError(404, 'Contact not found');
+    }
+
+    // Перевірка, чи належить контакт авторизованому користувачу
+    if (contact.userId.toString() !== req.user._id.toString()) {
+      throw createHttpError(
+        403,
+        'You do not have permission to delete this contact',
+      );
+    }
+
+    // Видаляємо контакт
+    await deleteContact(contactId);
+
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error in deleteContactController:', error); // Логування помилок
+    next(error);
   }
-
-  await deleteContact(contactId);
-
-  res.status(204).send();
 };
