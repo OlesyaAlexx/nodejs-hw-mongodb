@@ -8,6 +8,7 @@ import {
 } from '../services/session-services.js';
 import { compareHash } from '../utils/hash.js';
 
+//функція для збер. токена оновлення сесії та ідентифікатора сесії у вигляді cookie на стороні клієнта.
 const setupResponseSession = (
   res,
   { refreshToken, refreshTokenValidUntil, _id },
