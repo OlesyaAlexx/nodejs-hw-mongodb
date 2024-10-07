@@ -14,7 +14,8 @@ export const getAllContacts = async ({
 
   console.log('Filters:', filter); // Логування фільтрів
 
-  const databaseQuery = ContactsCollection.find();
+  const databaseQuery = ContactsCollection.find({ userId: filter.userId });
+
   if (filter.contactType) {
     databaseQuery.where('contactType').equals(filter.contactType);
   }
@@ -49,29 +50,54 @@ export const getAllContacts = async ({
   };
 };
 
-export const getContactById = async (contactId) => {
-  return await ContactsCollection.findById(contactId);
+export const getContactById = async (contactId, userId) => {
+  return await ContactsCollection.findOne({ _id: contactId, userId });
 };
 
 export const postContacts = async (payload) => {
+  const existingContact = await ContactsCollection.findOne({
+    name: payload.name,
+    phoneNumber: payload.phoneNumber,
+    email: payload.email, 
+  });
+
+  // Якщо контакт вже існує, повертаємо помилку
+  if (existingContact) {
+    throw new Error('Contact with this name and phone number already exists');
+  }
+
+  // Якщо контакт не існує, створюємо новий контакт
   const contact = await ContactsCollection.create(payload);
   return contact;
 };
 
-export const updateContact = async (filter, payload, options = {}) => {
-  const result = await ContactsCollection.findOneAndUpdate(filter, payload, {
-    new: true, // Повертає оновлений документ
+export const updateContact = async (
+  contactId,
+  userId,
+  payload,
+  options = {},
+) => {
+  const filter = { _id: contactId, userId };
+  const update = payload;
+  const opts = {
+    new: true, // Повертає оновлений або новостворений документ
     runValidators: true, // Перевіряє валідність даних перед оновленням
-    includeResultMetadata: true,
+    upsert: true, // Додає новий документ, якщо не знайдено існуючий
     ...options,
-  });
+  };
+
+  const result = await ContactsCollection.findOneAndUpdate(
+    filter,
+    update,
+    opts,
+  );
 
   if (!result) {
     console.warn('No contact found or update failed:', filter);
     return null;
   }
 
-  const isNew = result.lastErrorObject?.updatedExisting === false; // Перевірка на новий запис
+  const isNew = result.lastErrorObject?.updatedExisting === false; // Перевірка, чи був створений новий документ
 
   return {
     payload: result.value,
@@ -79,10 +105,16 @@ export const updateContact = async (filter, payload, options = {}) => {
   };
 };
 
-export const deleteContact = async (contactId) => {
-  const contact = await ContactsCollection.findOneAndDelete({
+export const deleteContact = async (contactId, userId) => {
+  const result = await ContactsCollection.findOneAndDelete({
     _id: contactId,
+    userId,
   });
 
-  return contact;
+  if (!result) {
+    console.warn('No contact found for deletion:', { contactId, userId });
+    return null; // Повертаємо null, якщо контакт не знайдено
+  }
+
+  return result; // Повертаємо видалений контакт
 };
