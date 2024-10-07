@@ -10,6 +10,7 @@ import parsePaginationParams from '../utils/parsePaginationParams.js';
 import { contactFieldList } from '../constants/contact-constants.js';
 import parseSortParams from '../utils/parseSortParams.js';
 import parseContactFilterParams from '../utils/parseContactFilterParams.js';
+import { ContactsCollection } from '../db/models/contacts.js';
 
 export const getContactsController = async (req, res, next) => {
   try {
@@ -40,7 +41,8 @@ export const getContactsController = async (req, res, next) => {
 
 export const getContactByIdController = async (req, res, next) => {
   const { contactId } = req.params;
-  const data = await getContactById(contactId);
+  const userId = req.user._id; // Отримуємо ID авторизованого користувача
+  const data = await getContactById(contactId, userId);
 
   if (!data) {
     throw createHttpError(404, 'Contact not found'); // Використовуємо createHttpError
@@ -72,7 +74,22 @@ export const postContactsController = async (req, res, next) => {
       contactType,
       userId: req.user._id, // Додаємо userId з авторизованого користувача
     };
-    // Виклик сервісу для створення контакту
+
+    // Перевірка наявності дублікатів
+    const existingContact = await ContactsCollection.findOne({
+      name,
+      phoneNumber,
+      email, 
+      userId: req.user._id, // Перевіряємо, чи контакт належить авторизованому користувачу
+    });
+
+    // Якщо контакт вже існує, повертаємо помилку
+    if (existingContact) {
+      return res.status(409).json({
+        message: 'Contact with this name and phone number already exists',
+      });
+    }
+    // Викликаємо сервіс для створення контакту
     const data = await postContacts(newContact);
 
     // Відповідь з кодом 201 та даними створеного контакту
@@ -89,7 +106,10 @@ export const postContactsController = async (req, res, next) => {
 export const patchContactController = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const contact = await getContactById(contactId);
+    const userId = req.user._id;
+
+    console.log('Looking for contact with ID:', contactId);
+    const contact = await getContactById(contactId, userId);
 
     //Перевірка чи контакт існує
     if (!contact) {
@@ -97,7 +117,7 @@ export const patchContactController = async (req, res, next) => {
     }
 
     // Перевірка, чи належить контакт авторизованому користувачу
-    if (contact.userId.toString() !== req.user._id.toString()) {
+    if (contact.userId.toString() !== userId.toString()) {
       throw createHttpError(
         403,
         'You do not have permission to update this contact',
@@ -105,7 +125,14 @@ export const patchContactController = async (req, res, next) => {
     }
 
     // Оновлюєм контакт
-    const updatedContact = await updateContact({ _id: contactId }, req.body);
+    const updatedContact = await updateContact(contactId, userId, req.body, {
+      new: true, // Повернути оновлений документ
+      runValidators: true, // Перевірка валідності перед оновленням
+    });
+
+    if (!updatedContact) {
+      return res.status(404).json({ message: 'Failed to update contact' });
+    }
 
     res.json({
       status: 200,
@@ -121,9 +148,10 @@ export const patchContactController = async (req, res, next) => {
 export const deleteContactController = async (req, res, next) => {
   try {
     const { contactId } = req.params;
+    const userId = req.user._id;
 
     // Знаходимо контакт по ID
-    const contact = await getContactById(contactId);
+    const contact = await getContactById(contactId, userId);
 
     // Перевірка, чи існує контакт
     if (!contact) {
@@ -139,7 +167,7 @@ export const deleteContactController = async (req, res, next) => {
     }
 
     // Видаляємо контакт
-    await deleteContact(contactId);
+    await deleteContact(contactId, userId);
 
     res.status(204).send();
   } catch (error) {
