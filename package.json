@@ -1,5 +1,5 @@
 {
-  "name": "hw5-auth",
+  "name": "hw6-email-and-images",
   "version": "1.0.0",
   "description": "node-js",
   "type": "module",
@@ -27,10 +27,13 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
+    "handlebars": "^4.7.8",
     "http-errors": "^2.0.0",
     "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.9.0",
     "mongoose": "^8.6.2",
+    "nodemailer": "^6.9.15",
     "pino-http": "^10.3.0"
   }
 }
