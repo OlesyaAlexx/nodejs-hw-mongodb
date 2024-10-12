@@ -10,6 +10,9 @@ import parsePaginationParams from '../utils/parsePaginationParams.js';
 import { contactFieldList } from '../constants/contact-constants.js';
 import parseSortParams from '../utils/parseSortParams.js';
 import parseContactFilterParams from '../utils/parseContactFilterParams.js';
+import { env } from '../utils/env.js';
+import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
+import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
 import { ContactsCollection } from '../db/models/contacts.js';
 
 export const getContactsController = async (req, res, next) => {
@@ -66,12 +69,25 @@ export const postContactsController = async (req, res, next) => {
         'Missing required fields: name, phoneNumber, and contactType are required',
       );
     }
+
+    const photo = req.file;
+    let photoUrl;
+
+    if (photo) {
+      if (env('ENABLE_CLOUDINARY') === 'true') {
+        photoUrl = await saveFileToCloudinary(photo);
+      } else {
+        photoUrl = await saveFileToUploadDir(photo);
+      }
+    }
+
     const newContact = {
       name,
       phoneNumber,
       email,
       isFavourite: isFavourite || false,
       contactType,
+      photo: photoUrl,
       userId: req.user._id, // Додаємо userId з авторизованого користувача
     };
 
@@ -108,11 +124,29 @@ export const patchContactController = async (req, res, next) => {
     const { contactId } = req.params;
     const userId = req.user._id;
 
+    const photo = req.file;
+
+    let photoUrl;
+
+    if (photo) {
+      if (env('ENABLE_CLOUDINARY') === 'true') {
+        photoUrl = await saveFileToCloudinary(photo);
+      } else {
+        photoUrl = await saveFileToUploadDir(photo);
+      }
+    }
+
+    // Оновлюємо req.body, щоб додати photoUrl, якщо воно є
+    if (photoUrl) {
+      req.body.photo = photoUrl;
+    }
+
     // Оновлюєм контакт
     const updatedContact = await updateContact(contactId, userId, req.body, {
       new: true, // Повернути оновлений документ
       runValidators: true, // Перевірка валідності перед оновленням
     });
+
     // Перевірка, чи був контакт оновлений
     if (!updatedContact) {
       return res.status(404).json({ message: 'Failed to update contact' });
@@ -121,7 +155,7 @@ export const patchContactController = async (req, res, next) => {
     res.json({
       status: 200,
       message: 'Successfully updated a contact!',
-      data: updatedContact,
+      data: updatedContact._doc,
     });
   } catch (error) {
     console.error('Error in patchContactController:', error); // Логування помилок
