@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import User from '../db/models/user.js';
+import Session from '../db/models/session.js';
 import { hashValue } from '../utils/hash.js';
 import createHttpError from 'http-errors';
 import { env } from '../utils/env.js';
@@ -69,7 +70,19 @@ export const resetPassword = async ({ token, password }) => {
     throw createHttpError(404, 'User not found!');
   }
 
+  // Перевірка чи новий пароль відрізняється від старого
+  const isSamePassword = await bcrypt.compare(password, user.password);
+  if (isSamePassword) {
+    throw createHttpError(
+      400,
+      'New password must be different from the old one.',
+    );
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
   await User.findByIdAndUpdate(user._id, { password: hashedPassword });
+
+  // Видалення сесій після зміни пароля
+  await Session.deleteOne({ userId: user._id });
 };
