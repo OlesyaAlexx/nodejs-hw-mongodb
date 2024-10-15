@@ -58,7 +58,7 @@ export const postContacts = async (payload) => {
   const existingContact = await ContactsCollection.findOne({
     name: payload.name,
     phoneNumber: payload.phoneNumber,
-    email: payload.email, 
+    email: payload.email,
   });
 
   // Якщо контакт вже існує, повертаємо помилку
@@ -82,27 +82,22 @@ export const updateContact = async (
   const opts = {
     new: true, // Повертає оновлений або новостворений документ
     runValidators: true, // Перевіряє валідність даних перед оновленням
-    upsert: true, // Додає новий документ, якщо не знайдено існуючий
+    upsert: false, // Додає новий документ, якщо не знайдено існуючий
     ...options,
   };
 
-  const result = await ContactsCollection.findOneAndUpdate(
+  const updatedContact = await ContactsCollection.findOneAndUpdate(
     filter,
     update,
     opts,
   );
 
-  if (!result) {
+  if (!updatedContact) {
     console.warn('No contact found or update failed:', filter);
     return null;
   }
 
-  const isNew = result.lastErrorObject?.updatedExisting === false; // Перевірка, чи був створений новий документ
-
-  return {
-    payload: result.value,
-    isNew,
-  };
+  return updatedContact; // Повертаємо оновлений контакт
 };
 
 export const deleteContact = async (contactId, userId) => {

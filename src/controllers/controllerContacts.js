@@ -155,7 +155,7 @@ export const patchContactController = async (req, res, next) => {
     res.json({
       status: 200,
       message: 'Successfully updated a contact!',
-      data: updatedContact._doc,
+      data: updatedContact,
     });
   } catch (error) {
     console.error('Error in patchContactController:', error); // Логування помилок

@@ -33,7 +33,7 @@ export const requestResetToken = async (email) => {
     },
     env(JWT_SECRET),
     {
-      expiresIn: 60 * 15, //15 minutes,
+      expiresIn: 5 * 60, //5 minutes,
     },
   );
 
@@ -53,7 +53,10 @@ export const requestResetToken = async (email) => {
     });
   } catch (err) {
     console.log(err);
-    throw createHttpError(500, 'Error in sending email');
+    throw createHttpError(
+      500,
+      'Failed to send the email, please try again later.',
+    );
   }
 };
 
@@ -61,8 +64,8 @@ export const resetPassword = async ({ token, password }) => {
   let payload;
   try {
     payload = jwt.verify(token, env(JWT_SECRET));
-  } catch (err) {
-    throw createHttpError(401, err.message);
+  } catch {
+    throw createHttpError(401, 'Token is expired or invalid.');
   }
   const user = await User.findById(payload.sub);
 
