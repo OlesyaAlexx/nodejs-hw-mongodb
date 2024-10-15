@@ -80,9 +80,9 @@ export const updateContact = async (
   const filter = { _id: contactId, userId };
   const update = payload;
   const opts = {
-    new: true, // Повертає оновлений або новостворений документ
+    new: true, // Повертає оновлений контакт
     runValidators: true, // Перевіряє валідність даних перед оновленням
-    upsert: false, // Додає новий документ, якщо не знайдено існуючий
+    upsert: false,
     ...options,
   };
 
