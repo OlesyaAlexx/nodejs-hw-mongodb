@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import { randomBytes } from 'node:crypto';
 import User from '../db/models/user.js';
 import Session from '../db/models/session.js';
 import { hashValue } from '../utils/hash.js';
@@ -10,6 +11,8 @@ import { JWT_SECRET } from '../constants/index.js';
 import { DOMAIN } from '../constants/index.js';
 import { sendMail } from '../utils/sendMail.js';
 import { generateResetPasswordEmail } from '../utils/generateResetPasswordEmail.js';
+import { generateOAuthUrl, validateCode } from '../utils/googleOAuth2.js';
+import { createSession } from './session-services.js';
 
 export const findUser = (filter) => User.findOne(filter);
 
@@ -88,4 +91,42 @@ export const resetPassword = async ({ token, password }) => {
 
   // Видалення сесій після зміни пароля
   await Session.deleteOne({ userId: user._id });
+};
+
+export const getGoogleOauthLink = () => {
+  return generateOAuthUrl();
+};
+
+export const loginOrSignupWithGoogle = async (code) => {
+  try {
+    // Виклик функції validateCode для валідації коду та отримання токену
+    const loginTicket = await validateCode(code); // loginTicket тепер містить ticket
+    const payload = loginTicket.getPayload(); // Отримання payload
+
+    if (!payload) throw createHttpError(401); // Перевірка наявності payload
+
+    const { name, email, picture } = payload; // Отримання необхідних даних з payload
+
+    // Пошук користувача в базі за електронною поштою
+    let user = await User.findOne({ email });
+    if (!user) {
+      const password = await bcrypt.hash(randomBytes(10), 10);
+
+      // Створення нового користувача, якщо він не знайдений
+      user = await User.create({
+        email,
+        name,
+        password,
+        avatarUrl: picture, // аватарка користувача
+      });
+    }
+
+    // Створення нової сесії
+    const session = await createSession(user._id);
+
+    return { user, session }; // Повернення користувача та сесії
+  } catch (error) {
+    console.error('Error during login or signup with Google:', error);
+    throw createHttpError(500, 'Something went wrong');
+  }
 };

@@ -17,13 +17,18 @@ export const createSession = async (userId) => {
   const accessTokenValidUntil = new Date(Date.now() + ACCESS_TOKEN_LIFETIME);
   const refreshTokenValidUntil = new Date(Date.now() + REFRESH_TOKEN_LIFETIME);
 
-  return Session.create({
+  const session = await Session.create({
     userId,
     accessToken,
     refreshToken,
     accessTokenValidUntil,
     refreshTokenValidUntil,
   });
+  // Повертаємо сесію, включаючи токени
+  return {
+    accessToken: session.accessToken,
+    refreshToken: session.refreshToken,
+  };
 };
 
 export const deleteSession = (filter) => Session.deleteOne(filter);
