@@ -5,6 +5,7 @@ import {
   findUser,
   requestResetToken,
   resetPassword,
+  loginOrSignupWithGoogle,
 } from '../services/auth-services.js';
 import {
   createSession,
@@ -12,6 +13,7 @@ import {
   deleteSession,
 } from '../services/session-services.js';
 import { compareHash } from '../utils/hash.js';
+import { generateOAuthUrl } from '../utils/googleOAuth2.js';
 
 //функція для збер. токена оновлення сесії та ідентифікатора сесії у вигляді cookie на стороні клієнта.
 const setupResponseSession = (
@@ -132,5 +134,30 @@ export const resetPasswordController = async (req, res) => {
     status: 200,
     message: 'Password has been successfully reset!',
     data: {},
+  });
+};
+
+export const getGoogleOAuthUrlController = async (req, res) => {
+  const url = generateOAuthUrl();
+  res.json({
+    status: 200,
+    message: 'Successfully get Google OAuth url!',
+    data: {
+      url,
+    },
+  });
+};
+
+export const loginWithGoogleController = async (req, res) => {
+  const session = await loginOrSignupWithGoogle(req.body.code);
+  setupResponseSession(res, session);
+
+  res.json({
+    status: 200,
+    message: 'Successfully logged in via Google OAuth!',
+    data: {
+      accessToken: session.accessToken, // Токен доступу
+      refreshToken: session.refreshToken, // Токен оновлення
+    },
   });
 };

@@ -9,6 +9,7 @@ import {
 } from '../validation/user-schemas.js';
 import { requestResetEmailSchema } from '../validation/requestResetEmailSchema.js';
 import { resetPasswordValidationSchema } from '../validation/resetPasswordValidationSchema.js';
+import { loginWithGoogleOAuthSchema } from '../validation/googleOauthSchema.js';
 import {
   registerController,
   loginController,
@@ -16,6 +17,8 @@ import {
   logoutController,
   requestResetEmailController,
   resetPasswordController,
+  getGoogleOAuthUrlController,
+  loginWithGoogleController,
 } from '../controllers/controllerAuth.js';
 
 const authRouter = Router();
@@ -46,4 +49,11 @@ authRouter.post(
   ctrlWrapper(resetPasswordController),
 );
 
+authRouter.get('/get-oauth-url', ctrlWrapper(getGoogleOAuthUrlController));
+
+authRouter.post(
+  '/confirm-oauth',
+  validateBody(loginWithGoogleOAuthSchema),
+  ctrlWrapper(loginWithGoogleController),
+);
 export default authRouter;
