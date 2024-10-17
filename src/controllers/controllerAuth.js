@@ -18,14 +18,20 @@ import { generateOAuthUrl } from '../utils/googleOAuth2.js';
 //функція для збер. токена оновлення сесії та ідентифікатора сесії у вигляді cookie на стороні клієнта.
 const setupResponseSession = (
   res,
-  { refreshToken, refreshTokenValidUntil, _id },
+  { refreshToken, refreshTokenValidUntil, sessionId },
 ) => {
+  console.log('Session data in setupResponseSession:', {
+    refreshToken,
+    refreshTokenValidUntil,
+    sessionId,
+  }); // Лог
+
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     expires: refreshTokenValidUntil,
   });
 
-  res.cookie('sessionId', _id, {
+  res.cookie('sessionId', sessionId, {
     httpOnly: true,
     expires: refreshTokenValidUntil,
   });
@@ -150,14 +156,13 @@ export const getGoogleOAuthUrlController = async (req, res) => {
 
 export const loginWithGoogleController = async (req, res) => {
   const session = await loginOrSignupWithGoogle(req.body.code);
-  setupResponseSession(res, session);
 
+  setupResponseSession(res, session);
   res.json({
     status: 200,
     message: 'Successfully logged in via Google OAuth!',
     data: {
-      accessToken: session.accessToken, // Токен доступу
-      refreshToken: session.refreshToken, // Токен оновлення
+      accessToken: session.session.accessToken,
     },
   });
 };
