@@ -28,6 +28,7 @@ export const createSession = async (userId) => {
   return {
     accessToken: session.accessToken,
     refreshToken: session.refreshToken,
+    sessionId: session._id.toString(),
   };
 };
 

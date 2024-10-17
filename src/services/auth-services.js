@@ -102,6 +102,7 @@ export const loginOrSignupWithGoogle = async (code) => {
     // Виклик функції validateCode для валідації коду та отримання токену
     const loginTicket = await validateCode(code); // loginTicket тепер містить ticket
     const payload = loginTicket.getPayload(); // Отримання payload
+    console.log('Google User Data:', payload); // Лог для перевірки
 
     if (!payload) throw createHttpError(401); // Перевірка наявності payload
 
@@ -110,7 +111,7 @@ export const loginOrSignupWithGoogle = async (code) => {
     // Пошук користувача в базі за електронною поштою
     let user = await User.findOne({ email });
     if (!user) {
-      const password = await bcrypt.hash(randomBytes(10), 10);
+      const password = await bcrypt.hash(randomBytes(10), toString('hex'), 10);
 
       // Створення нового користувача, якщо він не знайдений
       user = await User.create({
