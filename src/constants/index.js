@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 export const sortOrderList = ['asc', 'desc'];
 
 export const ACCESS_TOKEN_LIFETIME = 15 * 60 * 1000; // 15 minutes
@@ -24,3 +26,5 @@ export const GOOGLE_VARS = {
   GOOGLE_AUTH_CLIENT_SECRET: 'GOOGLE_AUTH_CLIENT_SECRET',
   GOOGLE_AUTH_REDIRECT_URI: 'GOOGLE_AUTH_REDIRECT_URI',
 };
+
+export const SWAGGER_PATH = path.join(process.cwd(), 'docs', 'swagger.json');

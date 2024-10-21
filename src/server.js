@@ -8,6 +8,7 @@ import authRouter from './routers/authRouter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { UPLOAD_PATH } from './constants/path.js';
+import { swaggerDocs } from './middlewares/swaggerDocs.js';
 
 const PORT = Number(env('PORT', '3000'));
 export const startServer = () => {
@@ -32,6 +33,8 @@ export const startServer = () => {
   app.use('/auth', authRouter);
 
   app.use('/uploads', express.static(UPLOAD_PATH));
+
+  app.use('/api-docs', swaggerDocs());
 
   app.use('*', notFoundHandler);
 

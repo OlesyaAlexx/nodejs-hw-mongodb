@@ -1,0 +1,53 @@
+tags:
+  - Auth
+summary: Register user
+operationId: authRegister
+description: 'Register a new user'
+security:
+  - bearerAuth: []
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - name
+          - email
+          - password
+        properties:
+          name:
+            type: string
+            example: 'Borys Jon'
+          email:
+            type: string
+            format: email
+            example: 'borysjon@example.com'
+          password:
+            type: string
+            example: "your_password"
+responses:
+  '201':
+    description: 'User signup successfuly'
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 201
+            message:
+              type: string
+              example: "Successfully registered user!"
+            data:
+              type: object
+              $ref: ..\..\..\componets\schemas\user.yaml
+  '409':
+    $ref: ..\..\..\componets\responses\409.yaml
+  '500':
+    description: "Server error."
