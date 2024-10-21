@@ -14,8 +14,7 @@ tags:
   - name: Auth with Google
     description: Auth operations with Google.
 servers:
-  - url: http://localhost:3000
-  - url: https://example.com/api/v1
+  - url: https://hw7-swagger-0trs.onrender.com
 paths:
   /contacts:
     get:
