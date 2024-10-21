@@ -1,0 +1,60 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Contacts App
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  description: This is a documentation of contacts app
+tags:
+  - name: Contact
+    description: Operations about contacts.
+  - name: Auth
+    description: Auth operations.
+  - name: Auth with Google
+    description: Auth operations with Google.
+servers:
+  - url: http://localhost:3000
+  - url: https://example.com/api/v1
+paths:
+  /contacts:
+    get:
+      $ref: ../swagger/paths/contacts/get.yaml
+    post:
+      $ref: ../swagger/paths/contacts/post.yaml
+  /contacts/{id}:
+    delete:
+      $ref: ../swagger/paths/contacts/{id}/delete.yaml
+    get:
+      $ref: '../swagger/paths/contacts/{id}/get.yaml'
+    patch:
+      $ref: ../swagger/paths/contacts/{id}/patch.yaml
+  /auth/register:
+    post:
+      $ref: ../swagger/paths/auth/register/post.yaml
+  /auth/login:
+    post:
+      $ref: ../swagger/paths/auth/login/post.yaml
+  /auth/refresh:
+    post:
+      $ref: ../swagger/paths/auth/refresh/post.yaml
+  /auth/logout:
+    post:
+      $ref: ../swagger/paths/auth/logout/post.yaml
+  /auth/send-reset-email:
+    post:
+      $ref: ../swagger/paths/auth/send-reset-email/post.yaml
+  /auth/reset-pwd:
+    post:
+      $ref: ../swagger/paths/auth/reset-pwd/post.yaml
+  /authGoogle/get-oauth-url:
+    get:
+      $ref: ..\swagger\paths\authGoogle\get-oauth-url\get.yaml
+  /auth/confirm-oauth:
+    post:
+      $ref: ..\swagger\paths\authGoogle\confirm-oauth\post.yaml
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

@@ -27,14 +27,16 @@ export const generateOAuthUrl = () => {
   });
 };
 
-/* &&& */
 export const validateCode = async (code) => {
   try {
     const { tokens } = await oauthClient.getToken(code);
     const idToken = tokens.id_token;
 
     // Перевірка токена
-    const ticket = await oauthClient.verifyIdToken({ idToken });
+     const ticket = oauthClient.verifyIdToken({ idToken });
+   /*  const ticket = await Promise.resolve(
+      oauthClient.verifyIdToken({ idToken }),
+    ); */
 
     return ticket;
   } catch (err) {

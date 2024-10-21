@@ -1,0 +1,14 @@
+tags:
+  - Auth
+summary: Logout user
+operationId: logoutUser
+description: 'Logout the current user and clear session cookies'
+security:
+  - bearerAuth: []
+responses:
+  '204':
+    description: 'Successfully logged out.'
+  '401':
+    description: 'Session not found'
+  '500':
+    description: 'Server error.'

@@ -1,0 +1,41 @@
+tags:
+  - Auth
+summary: Send reset password email
+operationId: sentResetEmail
+description: 'Send reset password email'
+security:
+  - bearerAuth: []
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - email
+        properties:
+          email:
+            type: string
+            format: email
+            example: 'lesyaalexx@meta.ua'
+responses:
+  '200':
+    description: 'Reset password email was successfully sent!'
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: 'Reset password email has been successfully sent!'
+  '404':
+    description: 'User not found.'
+  '500':
+    description: 'Server error.'

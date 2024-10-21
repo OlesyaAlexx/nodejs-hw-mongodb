@@ -106,7 +106,7 @@ export const loginOrSignupWithGoogle = async (code) => {
 
     if (!payload) throw createHttpError(401); // Перевірка наявності payload
 
-    const { name, email, picture } = payload; // Отримання необхідних даних з payload
+    const { name, email, picture } = payload; // Отримання даних з payload
 
     // Пошук користувача в базі за електронною поштою
     let user = await User.findOne({ email });
@@ -116,9 +116,9 @@ export const loginOrSignupWithGoogle = async (code) => {
       // Створення нового користувача, якщо він не знайдений
       user = await User.create({
         email,
-        name,
+        name: name || 'Anonymous',
         password,
-        avatarUrl: picture, // аватарка користувача
+        avatarUrl: picture || ' ', // аватарка користувача
       });
     }
 

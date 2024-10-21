@@ -1,0 +1,54 @@
+tags:
+  - Auth
+summary: Login user
+operationId: loginUser
+description: 'Authenticate a user with email and password.'
+security:
+  - bearerAuth: []
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - email
+          - password
+        properties:
+          email:
+            type: string
+            format: email
+            example: 'lesyaalexx@meta.ua'
+          password:
+            type: string
+            example: 'your_password'
+responses:
+  '200':
+    description: 'User signin successfully'
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: 'Successfully logged in!'
+            data:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
+  '401':
+    description: 'Email not found or unauthorized.'
+  '404':
+    description: 'Email not found.'
+  '500':
+    description: 'Server error.'

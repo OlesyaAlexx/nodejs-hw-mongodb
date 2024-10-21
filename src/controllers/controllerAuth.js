@@ -103,7 +103,7 @@ export const refreshController = async (req, res) => {
 
   res.json({
     status: 200,
-    message: 'User signin successfully',
+    message: 'Successfully refreshed a session',
     data: {
       accessToken: newSession.accessToken,
     },
@@ -157,7 +157,11 @@ export const getGoogleOAuthUrlController = async (req, res) => {
 export const loginWithGoogleController = async (req, res) => {
   const session = await loginOrSignupWithGoogle(req.body.code);
 
-  setupResponseSession(res, session);
+  setupResponseSession(res, {
+    refreshToken: session.session.refreshToken,
+    refreshTokenValidUntil: session.session.refreshTokenValidUntil,
+    sessionId: session.session.sessionId,
+  });
   res.json({
     status: 200,
     message: 'Successfully logged in via Google OAuth!',

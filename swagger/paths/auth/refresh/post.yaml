@@ -1,0 +1,35 @@
+tags:
+  - Auth
+summary: Refresh user session
+operationId: refreshToken
+description: "Refresh a user's session and return a new access token."
+security:
+  - bearerAuth: []
+responses:
+  '200':
+    description: 'Successfully refreshed a session'
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: 'Successfully refreshed the session!'
+            data:
+              type: object
+              properties:
+                accessToken:
+                  type: string
+                  example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
+  '401':
+    description: 'Session expired.'
+  '500':
+    description: 'Server error.'
