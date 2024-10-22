@@ -371,7 +371,7 @@
         "tags": [
           "Contact"
         ],
-        "summary": "Upserts contact by id",
+        "summary": "Updates contact by id",
         "operationId": "updatedContact",
         "description": "You can update a contact with payload",
         "security": [
@@ -411,8 +411,8 @@
                     "type": "string",
                     "example": "borysjon@example.com"
                   },
-                  "isFavorite": {
-                    "description": "Is the contact favorite?",
+                  "isFavourite": {
+                    "description": "Is the contact favourite?",
                     "type": "boolean",
                     "example": true,
                     "default": false
